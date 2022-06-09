@@ -7,13 +7,17 @@
 
 import SwiftUI
 
-struct ContentView: View { // this struct behaves as a view
+struct ContentView: View {
     @ObservedObject var viewModel: EmojiMemoryGame
     
-    var body: some View { // view is a rectangular area on the screen
+    var body: some View {
         VStack{
             VStack {
-                Text("Memorize!")
+                HStack {
+                    Text(viewModel.theme.name)
+                    Spacer()
+                    Text("Score: \(viewModel.score)")
+                }
                 LazyVGrid(columns: [GridItem(.adaptive(minimum: 65))]) {
                     ForEach(viewModel.cards) { card in
                         CardView(card: card)
@@ -23,21 +27,13 @@ struct ContentView: View { // this struct behaves as a view
                             }
                     }
                 }
+                Spacer()
             }
-                .foregroundColor(.red)
+                .foregroundColor(viewModel.theme.color)
                 .padding(.horizontal)
-        }
-    }
-    
-    var animals: some View {
-        Button {
-            print("aniamls")
-        } label: {
-            VStack{
-                Image(systemName: "hare.fill")
-                Text("Animals")
+            Button("New Game") {
+                  viewModel.restart()
             }
-            .padding()
         }
     }
 }
