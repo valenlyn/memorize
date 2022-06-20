@@ -11,29 +11,30 @@ struct EmojiMemoryGameView: View {
     @ObservedObject var game: EmojiMemoryGame
     
     var body: some View {
-        VStack{
-            VStack {
-                HStack {
-                    Text(game.theme.name)
-                    Spacer()
-                    Text("Score: \(game.score)")
-                }
-                LazyVGrid(columns: [GridItem(.adaptive(minimum: 70))]) {
-                    ForEach(game.cards) { card in
-                        CardView(card: card)
-                            .aspectRatio(2/3, contentMode: .fit)
-                            .onTapGesture {
-                                game.choose(card: card)
-                            }
-                    }
-                }
+        VStack {
+            HStack {
+                Text(game.theme.name)
                 Spacer()
+                Text("Score: \(game.score)")
             }
-                .foregroundColor(game.theme.color)
-                .padding(.horizontal)
-            Button("New Game") {
-                  game.restart()
+            .padding(.horizontal, 20)
+            AspectVGrid(items: game.cards, aspectRatio: 2/3) { card in
+                if card.isMatched && !card.isFaceUp {
+                    Rectangle().opacity(0)
+                } else {
+                    CardView(card: card)
+                        .padding(4)
+                        .onTapGesture {
+                            game.choose(card: card)
+                        }
+                }
             }
+            .foregroundColor(game.theme.color)
+            .padding(.horizontal)
+        }
+        Spacer()
+        Button("New Game") {
+              game.restart()
         }
     }
 }
@@ -48,6 +49,9 @@ struct CardView: View {
                 if (card.isFaceUp) {
                     shape.fill().foregroundColor(.white)
                     shape.strokeBorder(lineWidth: DrawingConstants.lineWidth)
+                    Pie(startAngle: Angle(degrees: 0-90), endAngle: Angle(degrees: 110-90))
+                        .padding(DrawingConstants.piePadding)
+                        .opacity(DrawingConstants.pieOpacity)
                     Text(card.content).font(font(in: geometry.size))
                 } else if card.isMatched {
                     shape.opacity(0)
@@ -63,9 +67,11 @@ struct CardView: View {
     }
     
     private struct DrawingConstants {
-        static let cornerRadius: CGFloat = 20
+        static let cornerRadius: CGFloat = 10
         static let lineWidth: CGFloat = 3
         static let fontScale: CGFloat = 0.65
+        static let piePadding: CGFloat = 5
+        static let pieOpacity: CGFloat = 0.5
     }
 }
 
@@ -73,9 +79,10 @@ struct CardView: View {
 struct ContentView_Previews: PreviewProvider {
     static var previews: some View {
         let game = EmojiMemoryGame()
-        EmojiMemoryGameView(game: game)
+        game.choose(card: game.cards.first!)
+        return EmojiMemoryGameView(game: game)
             .preferredColorScheme(.light)
-        EmojiMemoryGameView(game: game)
-            .preferredColorScheme(.dark)
+//        EmojiMemoryGameView(game: game)
+//            .preferredColorScheme(.dark)
     }
 }
