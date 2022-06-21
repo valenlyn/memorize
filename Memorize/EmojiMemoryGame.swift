@@ -10,25 +10,19 @@ import SwiftUI
 class EmojiMemoryGame: ObservableObject {
     typealias Card = MemoryGame<String>.Card
     
-    @Published private var model = EmojiMemoryGame.createMemoryGame().model
+    @Published private var model: MemoryGame<String>
     private(set) var numberOfPairs: Int = 0
     private(set) var theme: EmojiMemoryTheme
     
     init(theme: EmojiMemoryTheme? = nil) {
         self.theme = theme ?? EmojiMemoryTheme.themes.randomElement()!
-    }
-
-    private static func createMemoryGame() -> (theme: EmojiMemoryTheme, model: MemoryGame<String>) {
-        let theme = EmojiMemoryTheme.themes.randomElement()!
-        let emojis = theme.emojis.shuffled()
-        let numberOfPairs = theme.numberOfPairs < emojis.count ? theme.numberOfPairs : emojis.count
-        let model = MemoryGame(numberOfPairsOfCards: numberOfPairs) { emojis[$0] }
-        
-        return (theme, model)
+        let emojis = self.theme.emojis.shuffled()
+        let numberOfPairs = self.theme.numberOfPairs < emojis.count ? self.theme.numberOfPairs : emojis.count
+        model = MemoryGame(numberOfPairsOfCards: numberOfPairs) { emojis[$0] }
     }
     
     var score: Int {
-            model.score
+        model.score
     }
 
     // MARK: - Access to the Model
@@ -39,6 +33,10 @@ class EmojiMemoryGame: ObservableObject {
     // MARK: - Intent(s)
     func choose(card: Card) {
         model.choose(card)
+    }
+    
+    func shuffle() {
+        model.shuffle()
     }
     
     func restart() {
